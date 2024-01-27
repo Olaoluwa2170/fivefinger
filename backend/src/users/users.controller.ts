@@ -1,27 +1,26 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
-  // Patch,
+  Patch,
   Param,
   Delete,
+  Req,
+  UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { AuthGuard } from '@nestjs/passport';
 import { Prisma } from '@prisma/client';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  async create(@Body() createUserDto: Prisma.UserCreateInput) {
-    return this.usersService.create(createUserDto);
-  }
-
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @UseGuards(AuthGuard('jwt'))
+  findAll(@Req() req) {
+    return this.usersService.findOne(req.user.id);
   }
 
   @Get(':id')
@@ -29,13 +28,22 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-  //   return this.usersService.update(+id, updateUserDto);
-  // }
+  @Patch(':id')
+  @UseGuards(AuthGuard('jwt'))
+  update(
+    @Body() userUpdateDto: Prisma.UserUpdateInput,
+    @Param('id') id: string,
+    @Req() req,
+  ) {
+    if (+id !== req.user.id)
+      throw new UnauthorizedException('Unauthorized Action');
+    return this.usersService.update(req.user.id, userUpdateDto);
+  }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  remove(@Param('id') id: string, @Req() req) {
+    if (+id !== req.user.id)
+      throw new UnauthorizedException('Unauthorized Action');
+    return this.usersService.remove(req.user.id);
   }
 }
