@@ -7,9 +7,12 @@ import { DatabaseService } from 'src/database/database.service';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly databaseService: DatabaseService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        JwtStrategy.extractJWT,
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ]),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: process.env.JWT_TOKEN_SECRET,
     });
   }
 
@@ -21,5 +24,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) throw new UnauthorizedException('Login to use this endpoint');
 
     return user;
+  }
+  private static extractJWT(req): string | null {
+    if (req.cookies && 'access_token' in req.cookies) {
+      return req.cookies.access_token;
+    }
+    return null;
   }
 }

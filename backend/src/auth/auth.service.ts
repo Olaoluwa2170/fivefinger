@@ -4,8 +4,8 @@ import * as bcrypt from 'bcryptjs';
 import { Prisma } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dto/signIn.dto';
-import { sign } from 'jsonwebtoken';
-
+import { secretExpire } from './constants';
+import { tokenDto } from './constants';
 @Injectable()
 export class AuthService {
   constructor(
@@ -14,9 +14,7 @@ export class AuthService {
   ) {}
 
   // sign-in
-  async signUp(
-    createUserDto: Prisma.UserCreateInput,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async signUp(createUserDto: Prisma.UserCreateInput): Promise<tokenDto> {
     const { password, ...others } = createUserDto;
     const hashPassword = await bcrypt.hash(password, 10);
     const user = this.databaseService.user.create({
@@ -25,10 +23,13 @@ export class AuthService {
         ...others,
       },
     });
-    const accessToken = this.jwtService.sign({ id: (await user).id });
-    const refreshToken = sign(
+    const accessToken = await this.jwtService.signAsync(
       { id: (await user).id },
-      process.env.JWT_REFRESH_SECRET,
+      secretExpire.accessToken,
+    );
+    const refreshToken = await this.jwtService.signAsync(
+      { id: (await user).id },
+      secretExpire.refreshToken,
     );
 
     return {
@@ -52,7 +53,10 @@ export class AuthService {
     if (!matchPassword) throw new UnauthorizedException('Wrong Password');
 
     const accessToken = this.jwtService.sign({ id: user.id });
-    const refreshToken = sign({ id: user.id }, process.env.JWT_REFRESH_SECRET);
+    const refreshToken = await this.jwtService.signAsync(
+      { id: (await user).id },
+      secretExpire.refreshToken,
+    );
 
     return {
       accessToken,
