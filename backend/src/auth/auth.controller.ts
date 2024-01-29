@@ -10,12 +10,14 @@ export class AuthController {
   @Post('sign-up')
   async signUp(
     @Body() createUserDto: Prisma.UserCreateInput,
-  ): Promise<{ token: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     return this.authService.signUp(createUserDto);
   }
 
   @Post('/sign-in')
-  async signIn(@Body() signInDto: SignInDto): Promise<{ token: string }> {
+  async signIn(
+    @Body() signInDto: SignInDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     return this.authService.signIn(signInDto);
   }
 }
