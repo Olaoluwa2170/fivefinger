@@ -4,7 +4,7 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt-access') {
   constructor(private readonly databaseService: DatabaseService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       where: { id: id },
     });
     if (!user) throw new UnauthorizedException('Login to use this endpoint');
-
+    console.log(payload)
     return user;
   }
   private static extractJWT(req): string | null {

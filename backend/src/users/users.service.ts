@@ -1,13 +1,11 @@
-import { Injectable, UseGuards } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { Prisma } from '@prisma/client';
-import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  @UseGuards(AuthGuard())
   findAll() {
     return this.databaseService.user.findMany();
   }
