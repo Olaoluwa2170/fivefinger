@@ -41,6 +41,7 @@ export class AuthService {
   // sign in
   async signIn(
     signInDto: SignInDto,
+    // res,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const { email, password } = signInDto;
     const user = await this.databaseService.user.findUnique({
@@ -52,11 +53,21 @@ export class AuthService {
 
     if (!matchPassword) throw new UnauthorizedException('Wrong Password');
 
-    const accessToken = this.jwtService.sign({ id: user.id });
+    const accessToken = await this.jwtService.signAsync(
+      { id: user.id },
+      secretExpire.accessToken,
+    );
     const refreshToken = await this.jwtService.signAsync(
-      { id: (await user).id },
+      { id: user.id },
       secretExpire.refreshToken,
     );
+
+    // res.cookie('refresh', refreshToken, {
+    //   httpOnly: true,
+    //   sameSite: 'None',
+    //   secure: true,
+    //   maxAge: 24 * 60 * 60 * 1000,
+    // });
 
     return {
       accessToken,

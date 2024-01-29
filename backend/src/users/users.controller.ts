@@ -18,9 +18,9 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
-  findAll(@Req() req) {
-    return this.usersService.findOne(req.user.id);
+  @UseGuards(AuthGuard('jwt-refresh'))
+  findAll() {
+    return this.usersService.findAll();
   }
 
   @Get(':id')
@@ -29,7 +29,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt-access'))
   update(
     @Body() userUpdateDto: Prisma.UserUpdateInput,
     @Param('id') id: string,

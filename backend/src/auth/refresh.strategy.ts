@@ -1,34 +1,34 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { DatabaseService } from 'src/database/database.service';
 import { jwtConstants } from './constants';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class RefreshTokenStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(private readonly databaseService: DatabaseService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        JwtStrategy.extractJWT,
+        RefreshTokenStrategy.extractJWT,
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
       secretOrKey: jwtConstants.refreshTokenSecret,
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload) {
-    const { id } = payload;
-    const user = this.databaseService.user.findUnique({
-      where: { id: id },
-    });
-    if (!user) throw new UnauthorizedException('Login to use this endpoint');
-
-    return user;
+  async validate(req, payload: any) {
+    const refreshToken = req.cookies.refresh;
+    console.log({ ...payload, refreshToken });
+    return true;
   }
   private static extractJWT(req): string | null {
-    if (req.cookies && 'access_token' in req.cookies) {
-      return req.cookies.access_token;
+    if (req.cookies && 'refresh_token' in req.cookies) {
+      return req.cookies.refresh_token;
     }
     return null;
   }
