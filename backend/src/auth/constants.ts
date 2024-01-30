@@ -18,5 +18,5 @@ export const secretExpire = {
 
 export type tokenDto = {
   accessToken: string;
-  refreshToken: string;
+  // refreshToken: string;
 };
