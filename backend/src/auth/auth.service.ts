@@ -17,31 +17,37 @@ export class AuthService {
   async signUp(createUserDto: Prisma.UserCreateInput): Promise<tokenDto> {
     const { password, ...others } = createUserDto;
     const hashPassword = await bcrypt.hash(password, 10);
-    const user = this.databaseService.user.create({
+    const user = await this.databaseService.user.create({
       data: {
         password: hashPassword,
         ...others,
       },
     });
     const accessToken = await this.jwtService.signAsync(
-      { id: (await user).id },
+      { id: user.id },
       secretExpire.accessToken,
     );
     const refreshToken = await this.jwtService.signAsync(
-      { id: (await user).id },
+      { id: user.id },
       secretExpire.refreshToken,
     );
 
+    this.databaseService.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        refreshToken: refreshToken,
+      },
+    });
+
     return {
       accessToken,
-      refreshToken,
     };
   }
 
   // sign in
-  async signIn(
-    signInDto: SignInDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async signIn(signInDto: SignInDto): Promise<tokenDto> {
     const { email, password } = signInDto;
     const user = await this.databaseService.user.findUnique({
       where: {
@@ -60,10 +66,16 @@ export class AuthService {
       { id: user.id },
       secretExpire.refreshToken,
     );
-
+    await this.databaseService.user.update({
+      where: {
+        email,
+      },
+      data: {
+        refreshToken: refreshToken,
+      },
+    });
     return {
       accessToken,
-      refreshToken,
     };
   }
 }
