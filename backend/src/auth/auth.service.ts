@@ -41,7 +41,6 @@ export class AuthService {
   // sign in
   async signIn(
     signInDto: SignInDto,
-    // res,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const { email, password } = signInDto;
     const user = await this.databaseService.user.findUnique({
@@ -61,13 +60,6 @@ export class AuthService {
       { id: user.id },
       secretExpire.refreshToken,
     );
-
-    // res.cookie('refresh', refreshToken, {
-    //   httpOnly: true,
-    //   sameSite: 'None',
-    //   secure: true,
-    //   maxAge: 24 * 60 * 60 * 1000,
-    // });
 
     return {
       accessToken,
