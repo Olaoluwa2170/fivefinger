@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res, Req } from '@nestjs/common';
+import { Controller, Post, Body, Res } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
@@ -17,13 +17,17 @@ export class AuthController {
   }
 
   @Post('/sign-in')
-  async signIn(@Body() signInDto: SignInDto, @Res() res: Response, @Req() req) {
+  async signIn(
+    @Body() signInDto: SignInDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const { refreshToken } = await this.authService.signIn(signInDto);
     res.cookie('refresh', refreshToken, {
       maxAge: 9000000,
       httpOnly: true,
+      secure: true,
+      sameSite: 'none',
     });
-    console.dir(req.cookies.refresh);
     return this.authService.signIn(signInDto);
   }
 }
