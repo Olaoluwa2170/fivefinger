@@ -22,7 +22,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt-access') {
       where: { id: id },
     });
     if (!user) throw new UnauthorizedException('Login to use this endpoint');
-    console.log(payload)
     return user;
   }
   private static extractJWT(req): string | null {
