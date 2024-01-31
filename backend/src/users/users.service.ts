@@ -23,9 +23,7 @@ export class UsersService {
     });
   }
 
-  remove(id: number) {
-    return this.databaseService.user.delete({
-      where: { id: id },
-    });
+  remove() {
+    return this.databaseService.user.deleteMany();
   }
 }

@@ -37,7 +37,7 @@ export class AuthController {
       { email },
       secretExpire.refreshToken,
     );
-    const user = await this.databaseService.user.create({
+    await this.databaseService.user.create({
       data: {
         email,
         password: hashPassword,
@@ -45,7 +45,6 @@ export class AuthController {
         ...others,
       },
     });
-    console.log(user);
     res.cookie('refresh', refreshToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 10000,
