@@ -44,9 +44,10 @@ export class UsersController {
   }
 
   @Delete(':id')
-  remove() {
-    // if (+id !== req.user.id)
-    //   throw new UnauthorizedException('Unauthorized Action');
-    return this.usersService.remove();
+  @UseGuards(AuthGuard('jwt-access'))
+  remove(@Param('id') id: string, @Req() req) {
+    if (+id !== req.user.id)
+      throw new UnauthorizedException('Unauthorized Action');
+    return this.usersService.remove(req.user.id);
   }
 }
