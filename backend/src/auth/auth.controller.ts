@@ -1,13 +1,23 @@
-import { Controller, Post, Body, Res } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  ForbiddenException,
+  Get,
+  Req,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
-import { secretExpire, tokenDto } from './constants';
+import { jwtConstants, secretExpire, tokenDto } from './constants';
 import { Response } from 'express';
 import { DatabaseService } from 'src/database/database.service';
 import { JwtService } from '@nestjs/jwt';
+import * as jwt from 'jsonwebtoken';
 
-@Controller('auth')
+@Controller()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -15,14 +25,14 @@ export class AuthController {
     private readonly databaseService: DatabaseService,
   ) {}
 
-  @Post('sign-up')
+  @Post('auth/sign-up')
   async signUp(
     @Body() createUserDto: Prisma.UserCreateInput,
   ): Promise<tokenDto> {
     return this.authService.signUp(createUserDto);
   }
 
-  @Post('/sign-in')
+  @Post('auth/sign-in')
   async signIn(
     @Body() signInDto: SignInDto,
     @Res({ passthrough: true }) res: Response,
@@ -46,8 +56,66 @@ export class AuthController {
     });
     res.cookie('refresh', refreshToken, {
       httpOnly: true,
-      maxAge: 168 * 60 * 60 * 10000,
+      maxAge: 24 * 60 * 60 * 10000,
     });
     return this.authService.signIn(signInDto);
+  }
+
+  @Get('refresh')
+  async getRefresh(@Req() req) {
+    const cookies = req.cookies;
+    if (!cookies?.refresh) throw new UnauthorizedException();
+    const refreshToken = await cookies.refresh;
+    const user = await this.databaseService.user.findMany({
+      where: {
+        refreshToken: refreshToken,
+      },
+    });
+    if (!user) throw new ForbiddenException();
+    const accessToken = jwt.verify(
+      refreshToken,
+      jwtConstants.refreshTokenSecret,
+      async (err, decoded) => {
+        if (err || user[0].id !== decoded.id) throw new ForbiddenException();
+        const accessToken = await this.jwtService.signAsync(
+          { id: user[0].id },
+          secretExpire.accessToken,
+        );
+
+        return { accessToken };
+      },
+    );
+
+    return accessToken;
+  }
+
+  @Get('logout')
+  async logOut(@Req() req, @Res() res: Response) {
+    const cookies = req.cookies;
+    if (!cookies?.refresh) return res.sendStatus(204);
+    const refreshToken = await cookies.refresh;
+    const user = await this.databaseService.user.findMany({
+      where: {
+        refreshToken: refreshToken,
+      },
+    });
+    if (!user) {
+      res.clearCookie('refresh', {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 10000,
+      });
+      res.sendStatus(204);
+    }
+    await this.databaseService.user.update({
+      where: { id: user[0].id },
+      data: {
+        refreshToken: '',
+      },
+    });
+    res.clearCookie('refresh', {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 10000,
+    });
+    return res.sendStatus(204);
   }
 }
