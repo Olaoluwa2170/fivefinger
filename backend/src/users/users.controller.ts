@@ -19,7 +19,10 @@ export class UsersController {
 
   @Get()
   @UseGuards(AuthGuard('jwt-access'))
-  findAll() {
+  findAll(@Req() req) {
+    if (req?.user.refreshToken === '') {
+      throw new UnauthorizedException('login to access routes');
+    }
     return this.usersService.findAll();
   }
 

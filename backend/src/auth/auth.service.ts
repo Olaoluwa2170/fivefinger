@@ -63,7 +63,6 @@ export class AuthService {
       secretExpire.accessToken,
     );
 
-    // console.log('database', updatedUser);
     return {
       accessToken,
     };
