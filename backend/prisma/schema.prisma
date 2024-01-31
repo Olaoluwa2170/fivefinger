@@ -18,7 +18,7 @@ model User {
   email        String   @unique
   password     String
   role         Role     @default(GUEST)
-  refreshToken String   @default("")
+  refreshToken String   @unique @default("")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
