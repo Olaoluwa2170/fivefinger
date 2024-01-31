@@ -14,9 +14,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt-access') {
   }
 
   async validate(payload) {
-    const { id } = payload;
+    const { email } = payload;
     const user = this.databaseService.user.findUnique({
-      where: { id: id },
+      where: { email: email },
     });
     if (!user) throw new UnauthorizedException('Login to use this endpoint');
     return user;

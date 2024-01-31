@@ -11,11 +11,12 @@ import {
 import { Prisma } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
-import { jwtConstants, secretExpire, tokenDto } from './constants';
+import { jwtConstants, secretExpire } from './constants';
 import { Response } from 'express';
 import { DatabaseService } from 'src/database/database.service';
 import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcryptjs';
 
 @Controller()
 export class AuthController {
@@ -28,7 +29,29 @@ export class AuthController {
   @Post('auth/sign-up')
   async signUp(
     @Body() createUserDto: Prisma.UserCreateInput,
-  ): Promise<tokenDto> {
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { email, password, ...others } = createUserDto;
+    const hashPassword = await bcrypt.hash(password, 10);
+    const refreshToken = await this.jwtService.signAsync(
+      { email },
+      secretExpire.refreshToken,
+    );
+    const user = await this.databaseService.user.create({
+      data: {
+        email,
+        password: hashPassword,
+        refreshToken: refreshToken,
+        ...others,
+      },
+    });
+    console.log(user);
+    res.cookie('refresh', refreshToken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 10000,
+      secure: true,
+      sameSite: 'none',
+    });
     return this.authService.signUp(createUserDto);
   }
 
@@ -57,6 +80,8 @@ export class AuthController {
     res.cookie('refresh', refreshToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 10000,
+      secure: true,
+      sameSite: 'none',
     });
     return this.authService.signIn(signInDto);
   }
@@ -102,7 +127,8 @@ export class AuthController {
     if (!user) {
       res.clearCookie('refresh', {
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 10000,
+        secure: true,
+        sameSite: 'none',
       });
       res.sendStatus(204);
     }
@@ -114,7 +140,8 @@ export class AuthController {
     });
     res.clearCookie('refresh', {
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 10000,
+      secure: true,
+      sameSite: 'none',
     });
     return res.sendStatus(204);
   }

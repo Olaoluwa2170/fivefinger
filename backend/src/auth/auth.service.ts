@@ -15,31 +15,12 @@ export class AuthService {
 
   // sign-in
   async signUp(createUserDto: Prisma.UserCreateInput): Promise<tokenDto> {
-    const { password, ...others } = createUserDto;
-    const hashPassword = await bcrypt.hash(password, 10);
-    const user = await this.databaseService.user.create({
-      data: {
-        password: hashPassword,
-        ...others,
-      },
-    });
+    const { email } = createUserDto;
+
     const accessToken = await this.jwtService.signAsync(
-      { id: user.id },
+      { email },
       secretExpire.accessToken,
     );
-    const refreshToken = await this.jwtService.signAsync(
-      { id: user.id },
-      secretExpire.refreshToken,
-    );
-
-    this.databaseService.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        refreshToken: refreshToken,
-      },
-    });
 
     return {
       accessToken,
