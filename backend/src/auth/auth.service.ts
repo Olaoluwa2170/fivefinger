@@ -27,19 +27,6 @@ export class AuthService {
       { id: user.id },
       secretExpire.accessToken,
     );
-    const refreshToken = await this.jwtService.signAsync(
-      { id: user.id },
-      secretExpire.refreshToken,
-    );
-
-    this.databaseService.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        refreshToken: refreshToken,
-      },
-    });
 
     return {
       accessToken,
