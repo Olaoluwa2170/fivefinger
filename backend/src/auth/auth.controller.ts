@@ -16,6 +16,7 @@ import { Response } from 'express';
 import { DatabaseService } from 'src/database/database.service';
 import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcryptjs';
 
 @Controller()
 export class AuthController {
@@ -30,22 +31,18 @@ export class AuthController {
     @Body() createUserDto: Prisma.UserCreateInput,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = await this.databaseService.user.findUnique({
-      where: {
-        email: createUserDto.email,
-      },
-    });
+    const { email, password, ...others } = createUserDto;
+    const hashPassword = await bcrypt.hash(password, 10);
     const refreshToken = await this.jwtService.signAsync(
-      { id: user.id },
+      { email },
       secretExpire.refreshToken,
     );
-
-    this.databaseService.user.update({
-      where: {
-        id: user.id,
-      },
+    await this.databaseService.user.create({
       data: {
+        email,
+        password: hashPassword,
         refreshToken: refreshToken,
+        ...others,
       },
     });
     res.cookie('refresh', refreshToken, {

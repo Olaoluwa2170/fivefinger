@@ -15,16 +15,10 @@ export class AuthService {
 
   // sign-in
   async signUp(createUserDto: Prisma.UserCreateInput): Promise<tokenDto> {
-    const { password, ...others } = createUserDto;
-    const hashPassword = await bcrypt.hash(password, 10);
-    const user = await this.databaseService.user.create({
-      data: {
-        password: hashPassword,
-        ...others,
-      },
-    });
+    const { email } = createUserDto;
+
     const accessToken = await this.jwtService.signAsync(
-      { id: user.id },
+      { email },
       secretExpire.accessToken,
     );
 
@@ -46,7 +40,7 @@ export class AuthService {
     if (!matchPassword) throw new UnauthorizedException('Wrong Password');
 
     const accessToken = await this.jwtService.signAsync(
-      { id: user.id },
+      { email },
       secretExpire.accessToken,
     );
 
