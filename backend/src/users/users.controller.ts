@@ -18,9 +18,12 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt-access'))
   findAll(@Req() req) {
-    return this.usersService.findOne(req.user.id);
+    if (req?.user.refreshToken === '') {
+      throw new UnauthorizedException('login to access routes');
+    }
+    return this.usersService.findAll();
   }
 
   @Get(':id')
@@ -29,7 +32,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt-access'))
   update(
     @Body() userUpdateDto: Prisma.UserUpdateInput,
     @Param('id') id: string,
@@ -41,6 +44,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt-access'))
   remove(@Param('id') id: string, @Req() req) {
     if (+id !== req.user.id)
       throw new UnauthorizedException('Unauthorized Action');
