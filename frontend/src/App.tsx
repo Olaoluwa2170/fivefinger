@@ -1,19 +1,10 @@
-authimport { useEffect, useState } from 'react'
-import './App.css'
-import axios from './api/axios'
+import Register from "./Register"
 
 function App() {
-  const [user, setUser] = useState({})
-
-  useEffect(() => {
-    
-  }, [])
 
   return (
     <>
-      <div>
-        {}
-      </div>
+      <Register />
     </>
   )
 }
