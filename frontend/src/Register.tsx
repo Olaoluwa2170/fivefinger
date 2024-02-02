@@ -17,13 +17,14 @@ import { Input } from "@/components/ui/input"
 import { useState } from "react"
  
 const formSchema = z.object({
-  username: z.string().min(2).max(50),
+  username: z.string().min(2).max(23).regex(/^[a-zA-Z][a-zA-Z0-9-_]/),
   email: z.string().email(),
-  password: z.string().min(8, 'Password must be at least 8 characters')
+  password: z.string().min(8, 'Password must be at least 8 characters').max(24).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%])/, 'Password must contain one special character')
 })
 
 export default function Register() {
-    const [showPassword, setShowPassword] = useState(false)
+    const [showPassword, setShowPassword] = useState(false);
+    const [success, setSuccess] = useState(false);
     const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
       defaultValues: {
@@ -37,6 +38,7 @@ export default function Register() {
     function onSubmit(values: z.infer<typeof formSchema>) {
       // Do something with the form values.
       // ✅ This will be type-safe and validated.
+      setSuccess(true)
       console.log(values)
     }
 
@@ -45,10 +47,12 @@ export default function Register() {
     }
 
     return (
-        <div className="flex h-screen justify-center bg-primary items-center">
+        <div className="w-full h-screen bg-primary items-center flex">
             <div className={cn(
-                "bg-slate-300 p-10 rounded-lg md:min-w-[750px] min-w-[250px] mx-auto"
-            )}>
+                "bg-slate-300 max-w-xl mx-auto md:max-w-5xl flex-1 p-10 rounded-lg"
+            )}>{ success ? <div>
+                success !!!
+            </div> :
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mx-10">
                     
@@ -98,7 +102,7 @@ export default function Register() {
                     />
                   <Button className="mt-10" type="submit">Submit</Button>
                   </form>
-                </Form>
+                </Form>}
             </div>
         </div>
       )
