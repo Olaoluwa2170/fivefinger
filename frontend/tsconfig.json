@@ -27,6 +27,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
+  // "parserOptions.project": [{ "path": "./tailwind.config.json" }],
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
