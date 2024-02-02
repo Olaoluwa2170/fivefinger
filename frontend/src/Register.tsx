@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import axios from "./api/axios";
 
 const formSchema = z.object({
   username: z
@@ -33,6 +34,8 @@ const formSchema = z.object({
     ),
 });
 
+const REGISTER_URL = "/auth/sign-up";
+
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -46,10 +49,22 @@ export default function Register() {
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    setSuccess(true);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const response = await axios.post(
+        REGISTER_URL,
+        { ...values },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        },
+      );
+      console.log(response.data);
+      console.log(response.data.accessToken);
+      setSuccess(true);
+    } catch (error) {
+      console.log(error);
+    }
     console.log(values);
   }
 
