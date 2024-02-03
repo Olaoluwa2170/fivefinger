@@ -18,11 +18,6 @@ import { FC, useRef, useState } from "react";
 import axios from "./api/axios";
 
 const formSchema = z.object({
-  username: z
-    .string()
-    .min(2)
-    .max(23)
-    .regex(/^[a-zA-Z][a-zA-Z0-9-_]/),
   email: z.string().email(),
   password: z
     .string()
@@ -34,9 +29,9 @@ const formSchema = z.object({
     ),
 });
 
-const REGISTER_URL = "/auth/sign-up";
+const LOGIN_URL = "/auth/sign-in";
 
-const Register: FC = () => {
+const Login: FC = () => {
   const errRef = useRef<HTMLParagraphElement | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -44,7 +39,6 @@ const Register: FC = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
       email: "",
       password: "",
     },
@@ -54,7 +48,7 @@ const Register: FC = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await axios.post(
-        REGISTER_URL,
+        LOGIN_URL,
         { ...values },
         {
           headers: { "Content-Type": "application/json" },
@@ -82,12 +76,9 @@ const Register: FC = () => {
   };
 
   return (
-    <section className="w-full h-screen bg-primary items-center flex">
-      <div
-        className={cn(
-          "bg-slate-300 max-w-[350px] mx-auto flex-1 p-10 rounded-lg",
-        )}
-      >
+    <section className="w-full flex-col h-screen justify-center bg-primary items-center flex">
+      <h1 className="text-white text-2xl mb-5">Welcome Back !!</h1>
+      <div className={cn("bg-slate-300 max-w-[350px] mx-auto p-10 rounded-lg")}>
         <div
           className={cn("mb-5 p-3 bg-destructive rounded-lg", {
             // eslint-disable-next-line prettier/prettier
@@ -103,19 +94,6 @@ const Register: FC = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Username" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
@@ -123,6 +101,7 @@ const Register: FC = () => {
                     <FormControl>
                       <Input
                         type="email"
+                        autoComplete="off"
                         placeholder="joe@mail.com"
                         {...field}
                       />
@@ -149,7 +128,13 @@ const Register: FC = () => {
                     </div>
                     <button
                       onClick={toggleShowPassword}
-                      className="h-full mr-5 pt-6 absolute md:w-5 w-4 cursor-pointer right-0 pb-3"
+                      className={cn(
+                        "mr-5 pt-6 absolute md:w-5 w-4 bottom-0 top-2 cursor-pointer right-0 pb-3",
+                        {
+                          // eslint-disable-next-line prettier/prettier
+                          'bottom-11' : form.formState.errors.password,
+                        },
+                      )}
                       type="button"
                     >
                       {showPassword ? (
@@ -172,4 +157,4 @@ const Register: FC = () => {
   );
 };
 
-export default Register;
+export default Login;
