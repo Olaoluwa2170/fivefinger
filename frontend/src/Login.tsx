@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { FC, useRef, useState } from "react";
 import axios from "./api/axios";
+import { useAuthContext } from "./context/AuthProvider";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -32,6 +33,7 @@ const formSchema = z.object({
 const LOGIN_URL = "/auth/sign-in";
 
 const Login: FC = () => {
+  const { setAuth } = useAuthContext();
   const errRef = useRef<HTMLParagraphElement | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -56,13 +58,14 @@ const Login: FC = () => {
         },
       );
       console.log(response.data);
-      console.log(response.data.accessToken);
+      const accessToken = response.data.accessToken;
+      setAuth({ ...values, accessToken });
       setSuccess(true);
     } catch (error: any) {
       if (!error?.response) {
         setErrMsg("No Server Response");
-      } else if (error?.response?.status === 409) {
-        setErrMsg("Email Taken");
+      } else if (error?.response?.status === 401) {
+        setErrMsg("Unauthorized");
       } else {
         setErrMsg("Registration Failed");
       }
@@ -103,6 +106,7 @@ const Login: FC = () => {
                         type="email"
                         autoComplete="off"
                         placeholder="joe@mail.com"
+                        required
                         {...field}
                       />
                     </FormControl>
@@ -121,6 +125,7 @@ const Login: FC = () => {
                         <Input
                           placeholder="enter password"
                           type={showPassword ? "text" : "password"}
+                          required
                           {...field}
                         />
                       </FormControl>
