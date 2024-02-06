@@ -102,7 +102,7 @@ export class AuthController {
       async (err, decoded) => {
         if (err || user[0].id !== decoded.id) throw new ForbiddenException();
         const accessToken = await this.jwtService.signAsync(
-          { id: user[0].id },
+          { email: user[0].email },
           secretExpire.accessToken,
         );
 

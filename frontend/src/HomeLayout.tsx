@@ -1,13 +1,15 @@
-import { Outlet, Navigate } from "react-router-dom";
-import { useAuthContext } from "./context/AuthProvider";
+import { Outlet, Link } from "react-router-dom";
 
 const HomeLayout = () => {
-  const { auth } = useAuthContext();
   return (
-    <main>
-      <p>Welcome !!!</p>
-      {auth ? <Outlet /> : <Navigate to="/auth" replace={true} />}
-    </main>
+    <>
+      <p>Nothing to see here</p>
+      <div>
+        <Outlet />
+      </div>
+      <Link to={"/users"}>users</Link>
+      <Link to={"/"}>Home</Link>
+    </>
   );
 };
 

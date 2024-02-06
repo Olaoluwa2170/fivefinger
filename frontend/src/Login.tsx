@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { FC, useRef, useState } from "react";
 import axios from "./api/axios";
 import { useAuthContext } from "./context/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -38,6 +39,7 @@ const Login: FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -60,6 +62,7 @@ const Login: FC = () => {
       console.log(response.data);
       const accessToken = response.data.accessToken;
       setAuth({ ...values, accessToken });
+      navigate("/");
       setSuccess(true);
     } catch (error: any) {
       if (!error?.response) {

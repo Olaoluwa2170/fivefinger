@@ -1,9 +1,20 @@
 import { useState, useEffect } from "react";
-import axios from "../api/axios";
+import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 // type Props = {};
 
+type Users = {
+  username: string;
+  email: string;
+  password: string;
+  createdAt?: string;
+  role?: "ADMIN" | "GUEST" | "USER";
+  updatedAt?: string;
+  refreshToken: string;
+};
+
 const Users = () => {
-  const [users, setUsers] = useState<any>();
+  const [users, setUsers] = useState<Array<Users>>();
+  const axiosPrivate = useAxiosPrivate();
 
   useEffect(() => {
     let isMounted = true;
@@ -11,7 +22,7 @@ const Users = () => {
 
     const getUsers = async () => {
       try {
-        const response = await axios.get("/users", {
+        const response = await axiosPrivate.get("/users", {
           signal: controller.signal,
         });
         console.log(response.data);
@@ -32,8 +43,12 @@ const Users = () => {
     <article>
       <h2 className="text-2xl font-black"> Users List </h2>
       <ul>
-        {users.map((user: string, i: number) => {
-          <li key={i}>{user}</li>;
+        {users?.map((user, i) => {
+          return (
+            <li key={i}>
+              {user.username} {user.email}
+            </li>
+          );
         })}
       </ul>
     </article>
