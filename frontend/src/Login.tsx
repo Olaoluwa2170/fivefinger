@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import axios from "./api/axios";
 import { useAuthContext } from "./context/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -34,7 +34,7 @@ const formSchema = z.object({
 const LOGIN_URL = "/auth/sign-in";
 
 const Login: FC = () => {
-  const { setAuth } = useAuthContext();
+  const { setAuth, setPersist, persist } = useAuthContext();
   const errRef = useRef<HTMLParagraphElement | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -53,6 +53,7 @@ const Login: FC = () => {
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      const email = { values }.values.email;
       const response = await axios.post(
         LOGIN_URL,
         { ...values },
@@ -63,7 +64,7 @@ const Login: FC = () => {
       );
       console.log(response.data);
       const accessToken = response.data.accessToken;
-      setAuth({ ...values, accessToken });
+      setAuth({ email, accessToken });
       navigate(from, { replace: true });
       setSuccess(true);
     } catch (error: any) {
@@ -82,6 +83,13 @@ const Login: FC = () => {
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+
+  const togglePersist = () => {
+    setPersist((prev) => !prev);
+  };
+  useEffect(() => {
+    localStorage.setItem("persist", persist.toString());
+  }, [persist]);
 
   return (
     <section className="w-full flex-col h-screen justify-center bg-primary items-center flex">
@@ -156,6 +164,15 @@ const Login: FC = () => {
                   </FormItem>
                 )}
               />
+              <div className="flex gap-5">
+                <FormLabel className="mt-3">Persist Login ?</FormLabel>
+                <Input
+                  type="checkbox"
+                  className="w-3"
+                  onChange={togglePersist}
+                  checked={persist}
+                />
+              </div>
               <Button className="mt-10" type="submit">
                 Submit
               </Button>
