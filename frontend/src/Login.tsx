@@ -18,6 +18,7 @@ import { FC, useEffect, useRef, useState } from "react";
 import axios from "./api/axios";
 import { useAuthContext } from "./context/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
+import useLocalStorage from "./hooks/useLocalStorage";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -42,15 +43,15 @@ const Login: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location?.state?.from?.pathname || "/";
+  const [email, setEmail] = useLocalStorage({ key: "email" });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      email: email,
       password: "",
     },
   });
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const email = { values }.values.email;
@@ -121,6 +122,10 @@ const Login: FC = () => {
                         placeholder="joe@mail.com"
                         required
                         {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setEmail(e.target.value);
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
