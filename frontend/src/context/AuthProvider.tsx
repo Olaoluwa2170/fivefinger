@@ -14,9 +14,7 @@ export const INITIAL_AUTH: IUser = {
 
 const INITIAL_STATE: IContextType = {
   auth: INITIAL_AUTH,
-  persist: false,
   setAuth: () => {},
-  setPersist: () => {},
 };
 
 export const AuthContext = createContext(INITIAL_STATE);
@@ -24,14 +22,9 @@ export const AuthContext = createContext(INITIAL_STATE);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [auth, setAuth] = useState<IUser>(INITIAL_AUTH);
 
-  const [persist, setPersist] = useState<boolean>(
-    localStorage.getItem("persist") === "true" ? true : false,
-  );
   const value = {
     auth,
-    persist,
     setAuth: setAuth as Dispatch<SetStateAction<IUser>>,
-    setPersist: setPersist as Dispatch<SetStateAction<boolean>>,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

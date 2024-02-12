@@ -5,7 +5,5 @@ export type IUser = {
 
 export type IContextType = {
   auth: IUser;
-  persist: boolean;
   setAuth: React.Dispatch<React.SetStateAction<IUser>>;
-  setPersist: React.Dispatch<React.SetStateAction<boolean>>;
 };

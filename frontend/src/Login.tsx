@@ -14,11 +14,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import axios from "./api/axios";
 import { useAuthContext } from "./context/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
 import useInput from "./hooks/useInput";
+import useToggle from "./hooks/useToggle";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -35,7 +36,7 @@ const formSchema = z.object({
 const LOGIN_URL = "/auth/sign-in";
 
 const Login: FC = () => {
-  const { setAuth, setPersist, persist } = useAuthContext();
+  const { setAuth } = useAuthContext();
   const errRef = useRef<HTMLParagraphElement | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -43,11 +44,11 @@ const Login: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location?.state?.from?.pathname || "/";
-  const [email, resetEmail, setEmail] = useInput("", "email");
+  const [email, setEmail] = useInput("email", " ");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: email,
+      email: email === "undefined" ? " " : email.toString(),
       password: "",
     },
   });
@@ -67,8 +68,8 @@ const Login: FC = () => {
       const accessToken = response.data.accessToken;
       setAuth({ email, accessToken });
       navigate(from, { replace: true });
+      setEmail(" ");
       setSuccess(true);
-      resetEmail();
     } catch (error: any) {
       if (!error?.response) {
         setErrMsg("No Server Response");
@@ -86,12 +87,7 @@ const Login: FC = () => {
     setShowPassword(!showPassword);
   };
 
-  const togglePersist = () => {
-    setPersist((prev) => !prev);
-  };
-  useEffect(() => {
-    localStorage.setItem("persist", persist.toString());
-  }, [persist]);
+  const [persist, togglePersist] = useToggle("persist", false);
 
   return (
     <section className="w-full flex-col h-screen justify-center bg-primary items-center flex">
@@ -180,7 +176,7 @@ const Login: FC = () => {
                   type="checkbox"
                   className="w-3"
                   onChange={togglePersist}
-                  checked={persist}
+                  checked={JSON.parse(persist.toString())}
                 />
               </div>
               <Button className="mt-10" type="submit">
