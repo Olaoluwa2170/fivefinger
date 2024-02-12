@@ -18,7 +18,7 @@ import { FC, useEffect, useRef, useState } from "react";
 import axios from "./api/axios";
 import { useAuthContext } from "./context/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
-import useLocalStorage from "./hooks/useLocalStorage";
+import useInput from "./hooks/useInput";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -43,7 +43,7 @@ const Login: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location?.state?.from?.pathname || "/";
-  const [email, setEmail] = useLocalStorage({ key: "email" });
+  const [email, resetEmail, setEmail] = useInput("", "email");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -68,6 +68,7 @@ const Login: FC = () => {
       setAuth({ email, accessToken });
       navigate(from, { replace: true });
       setSuccess(true);
+      resetEmail();
     } catch (error: any) {
       if (!error?.response) {
         setErrMsg("No Server Response");
@@ -95,7 +96,11 @@ const Login: FC = () => {
   return (
     <section className="w-full flex-col h-screen justify-center bg-primary items-center flex">
       <h1 className="text-white text-2xl mb-5">Welcome Back !!</h1>
-      <div className={cn("bg-slate-300 max-w-[350px] mx-auto p-10 rounded-lg")}>
+      <div
+        className={cn(
+          "bg-slate-300 max-w-[350px] w-[70%] mx-auto p-10 rounded-lg",
+        )}
+      >
         <div
           className={cn("mb-5 p-3 bg-destructive rounded-lg", {
             // eslint-disable-next-line prettier/prettier
