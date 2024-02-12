@@ -176,7 +176,7 @@ const Login: FC = () => {
                   type="checkbox"
                   className="w-3"
                   onChange={togglePersist}
-                  checked={typeof persist === "boolean" ? persist : false}
+                  checked={JSON.parse(persist.toString())}
                 />
               </div>
               <Button className="mt-10" type="submit">
