@@ -5,11 +5,14 @@ const useInput = (
   initialValue: string,
 ): [
   string | boolean,
+  () => void,
   React.Dispatch<React.SetStateAction<string | boolean>>,
 ] => {
   const [value, setValue] = useLocalStorage(key, initialValue);
 
-  return [value, setValue];
+  const reset = () => localStorage.setItem(key, initialValue);
+
+  return [value, reset, setValue];
 };
 
 export default useInput;

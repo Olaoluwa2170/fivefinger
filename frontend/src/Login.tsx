@@ -44,7 +44,7 @@ const Login: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location?.state?.from?.pathname || "/";
-  const [email, setEmail] = useInput("email", " ");
+  const [email, reset, setEmail] = useInput("email", " ");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -68,7 +68,7 @@ const Login: FC = () => {
       const accessToken = response.data.accessToken;
       setAuth({ email, accessToken });
       navigate(from, { replace: true });
-      setEmail(" ");
+      reset();
       setSuccess(true);
     } catch (error: any) {
       if (!error?.response) {
