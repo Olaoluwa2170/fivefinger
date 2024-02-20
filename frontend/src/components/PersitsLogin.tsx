@@ -9,14 +9,14 @@ const PersitsLogin = () => {
   const { auth } = useAuthContext();
   const [isLoading, setIsLoading] = useState(true);
   const [persistStore] = useLocalStorage("persist", false);
-  const persist = persistStore === "false" ? false : true;
+  const persist =
+    typeof persistStore === "string" ? JSON.parse(persistStore) : persistStore;
   useEffect(() => {
     let isMounted = true;
     const verifyRefreshToken = async () => {
       try {
         await refresh();
       } catch (error) {
-        console.log(error);
       } finally {
         isMounted && setIsLoading(false);
       }

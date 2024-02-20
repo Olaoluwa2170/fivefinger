@@ -1,18 +1,14 @@
 import useLocalStorage from "./useLocalStorage";
 
-const useInput = (
+function useInput(
   key: string,
   initialValue: string,
-): [
-  string | boolean,
-  () => void,
-  React.Dispatch<React.SetStateAction<string | boolean>>,
-] => {
+): [string, () => void, React.Dispatch<React.SetStateAction<string>>] {
   const [value, setValue] = useLocalStorage(key, initialValue);
 
   const reset = () => localStorage.setItem(key, initialValue);
 
   return [value, reset, setValue];
-};
+}
 
 export default useInput;

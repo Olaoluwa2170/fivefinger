@@ -10,13 +10,10 @@ const getLocalStorage = (key: string, initialValue: any) => {
   if (initialValue instanceof Function) return initialValue();
 };
 
-const useLocalStorage = (
+function useLocalStorage<T>(
   key: string,
-  initialValue: string | boolean,
-): [
-  string | boolean,
-  React.Dispatch<React.SetStateAction<string | boolean>>,
-] => {
+  initialValue: T,
+): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [value, setValue] = useState(() => {
     return getLocalStorage(key, initialValue);
   });
@@ -25,6 +22,6 @@ const useLocalStorage = (
   }, [key, value]);
 
   return [value, setValue];
-};
+}
 
 export default useLocalStorage;

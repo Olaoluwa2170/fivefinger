@@ -6,11 +6,10 @@ const useLogout = () => {
   const { setAuth } = useAuthContext();
 
   const logout = async () => {
-    const response = await axios.get("/logout", {
+    await axios.get("/logout", {
       withCredentials: true,
     });
     setAuth(INITIAL_AUTH);
-    console.log(response.data);
   };
   return logout;
 };

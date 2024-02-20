@@ -12,7 +12,7 @@ type Users = {
 };
 
 const Users = () => {
-  const [users, setUsers] = useState<Array<Users>>();
+  const [users, setUsers] = useState<Array<Users["username"]>>();
   const axiosPrivate = useAxiosPrivate();
 
   useEffect(() => {
@@ -24,7 +24,8 @@ const Users = () => {
         const response = await axiosPrivate.get("/users", {
           signal: controller.signal,
         });
-        isMounted && setUsers(response.data);
+        const UserNames = response.data.map((users: Users) => users.username);
+        isMounted && setUsers(UserNames);
       } catch (error) {
         console.log(error);
       }
@@ -42,11 +43,7 @@ const Users = () => {
       <h2 className="text-2xl font-black"> Users List </h2>
       <ul>
         {users?.map((user, i) => {
-          return (
-            <li key={i}>
-              {user.username} {user.email}
-            </li>
-          );
+          return <li key={i}>{user}</li>;
         })}
       </ul>
     </article>

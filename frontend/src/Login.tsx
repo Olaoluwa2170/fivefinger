@@ -44,11 +44,11 @@ const Login: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location?.state?.from?.pathname || "/";
-  const [email, reset, setEmail] = useInput("email", " ");
+  const [email, reset, setEmail] = useInput("email", "");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: email === "undefined" ? " " : email.toString(),
+      email: email,
       password: "",
     },
   });
@@ -64,7 +64,6 @@ const Login: FC = () => {
           withCredentials: true,
         },
       );
-      console.log(response.data);
       const accessToken = response.data.accessToken;
       setAuth({ email, accessToken });
       navigate(from, { replace: true });
@@ -80,7 +79,6 @@ const Login: FC = () => {
       }
       errRef.current?.focus();
     }
-    console.log(values);
   }
 
   const toggleShowPassword = () => {
@@ -175,8 +173,10 @@ const Login: FC = () => {
                 <Input
                   type="checkbox"
                   className="w-3"
-                  onChange={togglePersist}
-                  checked={JSON.parse(persist.toString())}
+                  onChange={(e) => togglePersist(e.target.checked)}
+                  checked={
+                    typeof persist === "string" ? JSON.parse(persist) : persist
+                  }
                 />
               </div>
               <Button className="mt-10" type="submit">

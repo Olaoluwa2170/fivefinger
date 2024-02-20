@@ -61,8 +61,6 @@ const Register: FC = () => {
           withCredentials: true,
         },
       );
-      console.log(response.data);
-      console.log(response.data.accessToken);
       setSuccess(true);
     } catch (error: any) {
       if (!error?.response) {
@@ -74,7 +72,6 @@ const Register: FC = () => {
       }
       errRef.current?.focus();
     }
-    console.log(values);
   }
 
   const toggleShowPassword = () => {
