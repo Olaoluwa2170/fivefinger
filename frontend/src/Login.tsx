@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { cn } from "./lib/utils";
 
-import React, { FC, useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "./api/axios";
 import { setAuth } from "./app/authSlice";
