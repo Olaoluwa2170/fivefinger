@@ -1,10 +1,11 @@
-import axios from "@/api/axios";
-import { useAuthContext } from "@/context/AuthProvider";
+import axios from "../api/axios";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../app/hooks/hooks";
+import { setAuth } from "../app/authSlice";
 
 const useRefreshToken = () => {
-  const { setAuth } = useAuthContext();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const location = useLocation();
 
   const refresh = async () => {
@@ -12,9 +13,11 @@ const useRefreshToken = () => {
       const response = await axios.get("/refresh", {
         withCredentials: true,
       });
-      setAuth((prev) => {
-        return { ...prev, accessToken: response.data.accessToken };
-      });
+      dispatch(
+        setAuth({
+          accessToken: response?.data?.accessToken,
+        }),
+      );
 
       return response.data.accessToken;
     } catch (error) {

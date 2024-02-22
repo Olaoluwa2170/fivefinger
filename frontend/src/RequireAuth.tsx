@@ -1,10 +1,10 @@
 import { Outlet, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { useAuthContext } from "./context/AuthProvider";
 import { Button } from "./components/ui/button";
 import useLogout from "./hooks/useLogout";
+import { useAppSelector } from "./app/hooks/hooks";
 
 const RequireAuth = () => {
-  const { auth } = useAuthContext();
+  const auth = useAppSelector((state) => state.auth);
   const location = useLocation();
   const navigate = useNavigate();
 

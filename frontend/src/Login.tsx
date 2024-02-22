@@ -4,7 +4,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { cn } from "./lib/utils";
 
-import { Button } from "@/components/ui/button";
+import React, { FC, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "./api/axios";
+import { setAuth } from "./app/authSlice";
+import { useAppDispatch } from "./app/hooks/hooks";
+import { Button } from "./components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,12 +17,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { FC, useRef, useState } from "react";
-import axios from "./api/axios";
-import { useAuthContext } from "./context/AuthProvider";
-import { useLocation, useNavigate } from "react-router-dom";
+} from "./components/ui/form";
+import { Input } from "./components/ui/input";
 import useInput from "./hooks/useInput";
 import useToggle from "./hooks/useToggle";
 
@@ -36,7 +37,7 @@ const formSchema = z.object({
 const LOGIN_URL = "/auth/sign-in";
 
 const Login: FC = () => {
-  const { setAuth } = useAuthContext();
+  const dispatch = useAppDispatch();
   const errRef = useRef<HTMLParagraphElement | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -65,7 +66,12 @@ const Login: FC = () => {
         },
       );
       const accessToken = response.data.accessToken;
-      setAuth({ email, accessToken });
+      dispatch(
+        setAuth({
+          email,
+          accessToken,
+        }),
+      );
       navigate(from, { replace: true });
       reset();
       setSuccess(true);

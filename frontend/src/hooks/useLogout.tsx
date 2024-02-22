@@ -1,15 +1,15 @@
-import { useAuthContext } from "@/context/AuthProvider";
 import axios from "@/api/axios";
-import { INITIAL_AUTH } from "@/context/AuthProvider";
+import { logOut } from "@/app/authSlice";
+import { useAppDispatch } from "@/app/hooks/hooks";
 
 const useLogout = () => {
-  const { setAuth } = useAuthContext();
+  const dispatch = useAppDispatch();
 
   const logout = async () => {
     await axios.get("/logout", {
       withCredentials: true,
     });
-    setAuth(INITIAL_AUTH);
+    dispatch(logOut());
   };
   return logout;
 };

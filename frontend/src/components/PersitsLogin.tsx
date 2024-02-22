@@ -1,4 +1,4 @@
-import { useAuthContext } from "@/context/AuthProvider";
+import { useAppSelector } from "@/app/hooks/hooks";
 import useRefreshToken from "@/hooks/useRefreshToken";
 import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
@@ -6,7 +6,7 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 
 const PersitsLogin = () => {
   const refresh = useRefreshToken();
-  const { auth } = useAuthContext();
+  const auth = useAppSelector((state) => state.auth);
   const [isLoading, setIsLoading] = useState(true);
   const [persistStore] = useLocalStorage("persist", false);
   const persist =
