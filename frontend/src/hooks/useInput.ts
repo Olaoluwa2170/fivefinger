@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import useLocalStorage from "./useLocalStorage";
 
 function useInput(
@@ -5,7 +6,6 @@ function useInput(
   initialValue: string,
 ): [string, () => void, React.Dispatch<React.SetStateAction<string>>] {
   const [value, setValue] = useLocalStorage(key, initialValue);
-
   const reset = () => localStorage.setItem(key, initialValue);
 
   return [value, reset, setValue];

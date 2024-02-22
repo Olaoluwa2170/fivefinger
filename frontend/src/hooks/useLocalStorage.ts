@@ -7,6 +7,8 @@ const getLocalStorage = (key: string, initialValue: any) => {
   const localValue = localStorage.getItem(key);
   if (localValue) return localValue;
 
+  if (!localValue) return initialValue;
+
   if (initialValue instanceof Function) return initialValue();
 };
 

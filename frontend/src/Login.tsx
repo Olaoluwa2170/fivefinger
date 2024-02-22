@@ -45,7 +45,7 @@ const Login: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location?.state?.from?.pathname || "/";
-  const [email, reset, setEmail] = useInput("email", "");
+  const [email, reset, setEmail] = useInput("email", " ");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
